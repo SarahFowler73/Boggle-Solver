@@ -55,7 +55,7 @@ export const findLetterCandidates = (letter: string, board: string[][]): Coordin
                 : null
           )
         )
-    ))
+    )) as Coordinate[]
 
 export const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate, usedCoords: Coordinate[]): boolean => {
   // Base Case; made whole word
