@@ -8,6 +8,7 @@ type Props = {
 class Board extends Component<Props, {}> {
     render() {
         return dom("table", {}, 
+            dom("tbody", {},
             this.props.boardMatrix.map((row: string[]) => 
                 dom("tr", {}, 
                     row.map((letter: string) => 
@@ -15,7 +16,7 @@ class Board extends Component<Props, {}> {
                     )
                 )
             )
-        )
+        ))
     }
 }
 
