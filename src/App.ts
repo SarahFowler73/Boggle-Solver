@@ -12,25 +12,29 @@ class App extends Component {
     correctWords: []
   }
 
-  checkGuess = (word: string) => {
+  checkGuess = (word: string): void => {
     // Check if they've already submitted the word
     if (r.contains(word, this.state.correctWords)) {
-      console.log("already guessed word")
-      return false
+      alert("Already guessed word")
+      return
     }
     // Find if it is in the matrix
-    const inBoard = startBoard(word.split(""))
+    const inBoard = startBoard(word.split(""), this.state.boggleBoard)
     if (!inBoard) {
-      console.log("word not in board");
-      return false
+      alert("Word not in board");
+      return
     }
     // Find if it is a real word
-    const wordDictResponse = fetchWord(word)
-    if (!wordDictResponse.ok ) {
-      alert("failed to fetch");
-      return false;
-    }
-    return wordDictResponse.body && wordDictResponse.body.length
+    return fetchWord(word).then(
+      (resp:any) => {
+        if (resp.ok) {
+          this.setState({correctWords: r.append(word, this.state.correctWords)})
+        }
+        else {
+          alert("Word does not exist!")
+        }
+      }
+    )
   }
 
   render() {
@@ -51,18 +55,14 @@ class App extends Component {
       dom("div", {style: {display: "flex", justifyContent: "center", marginTop: "1em"}},
         this.state.boggleBoard.length ? 
           dom(WordInput, {
-            submitGuess: (word: string) => {
-              if (this.checkGuess(word)) {
-                this.setState({correctWords: r.append(word, this.state.correctWords)})
-              }
-            }
+            submitGuess: (word: string) => this.checkGuess(word)
           })
           : null
         ),
     dom("div", {style: {display: "flex", justifyContent: "center", marginTop: "1em"}},
         this.state.boggleBoard.length ? 
           dom("ul", {},
-            r.map((word: string) => dom("li", {}, word), this.state.correctWords)
+            r.map((word: string) => dom("li", {key: word}, word), this.state.correctWords)
            )
           : null
         )

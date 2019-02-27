@@ -9,22 +9,14 @@ type Neighbor = {
     letter: string
 }
 
+type BoggleBoard = string[][]
+
 type Coordinate = [number, number]
 
 const getRow = (boardSize: number) => 
   r.map(() => ALPHA[Math.floor(Math.random() * boardSize + 1)], r.range(0, boardSize))
 
-export const makeBoggleBoard = (boardSize: number): string[][] => r.map(() => getRow(boardSize), r.range(0, boardSize))
-
-const my_board = [ 
-    [ 'c', 'b', 'b', 'e', 'e' ],
-    [ 'b', 'e', 'b', 'c', 'b' ],
-    [ 'd', 'b', 'd', 'e', 'c' ],
-    [ 'f', 'e', 'b', 'd', 'f' ],
-    [ 'b', 'f', 'd', 'b', 'f' ] ]
-
-  
-const word = ["b", "e", "d"]
+export const makeBoggleBoard = (boardSize: number): BoggleBoard => r.map(() => getRow(boardSize), r.range(0, boardSize))
 
 export const getRange = (val: number): number[] =>
   r.range(
@@ -32,7 +24,7 @@ export const getRange = (val: number): number[] =>
     val < BOARD_SIZE - 1 ? val + 2 : val + 1
   )
 
-export const getNeighborLetters = (row: number, col: number, board: string[][]): Neighbor[] => {
+export const getNeighborLetters = (row: number, col: number, board: BoggleBoard): Neighbor[] => {
   return r.unnest(getRange(row).map(
     (i: number) => {
       return getRange(col).map(
@@ -44,7 +36,7 @@ export const getNeighborLetters = (row: number, col: number, board: string[][]):
   ))
 }
 
-export const findLetterCandidates = (letter: string, board: string[][]): Coordinate[] => 
+export const findLetterCandidates = (letter: string, board: BoggleBoard): Coordinate[] => 
     r.unnest(r.range(0, board.length).map(
       (i: number) => 
         r.reject(r.isNil, 
@@ -57,7 +49,7 @@ export const findLetterCandidates = (letter: string, board: string[][]): Coordin
         )
     )) as Coordinate[]
 
-export const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate, usedCoords: Coordinate[]): boolean => {
+export const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate, usedCoords: Coordinate[], board: BoggleBoard): boolean => {
   // Base Case; made whole word
   if (idx === word.length) {
     return true
@@ -66,7 +58,7 @@ export const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate
   // Base Case: could not find next letter
   const neighbors = r.filter(
     (candidate: Neighbor) => candidate.letter === word[idx] && !r.contains(candidate.coords, usedCoords),
-    getNeighborLetters(prevCoord[0], prevCoord[1], my_board)
+    getNeighborLetters(prevCoord[0], prevCoord[1], board)
   )
 
   if (neighbors.length === 0) {
@@ -79,21 +71,20 @@ export const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate
       idx + 1, 
       word, 
       candidate.coords, 
-      r.append(candidate.coords, usedCoords)
+      r.append(candidate.coords, usedCoords),
+      board
     )
   ))
 }
 
 
-export const startBoard = (word: string[]) => {
-  const startingCandidates = findLetterCandidates(word[0], my_board)
+export const startBoard = (word: string[], board: BoggleBoard) => {
+  const startingCandidates = findLetterCandidates(word[0], board)
   
   for (let i in startingCandidates) {
-    if (findNeighbors(1, word, startingCandidates[i], [startingCandidates[i]])) {
+    if (findNeighbors(1, word, startingCandidates[i], [startingCandidates[i]], board)) {
       return true
     }
   }
   return false 
 }
-
-console.log(JSON.stringify(startBoard(word)))

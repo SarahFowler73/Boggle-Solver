@@ -16,9 +16,13 @@ class WordInput extends Component<Props, State> {
 
     render() {
         return dom("div", {}, 
-            dom("input", {onChange: (evt) => this.setState({word: evt.target.value})}),
+            dom("input", {
+                onChange: (evt) => this.setState({word: evt.target.value}),
+                value: this.state.word
+            }),
             dom("button", {onClick: () => {
                 if (this.state.word.length >= 3) {
+                    this.setState({word: ""})
                     this.props.submitGuess(this.state.word)
                 }
                 else {
