@@ -1,4 +1,4 @@
-const r = require("ramda")
+import * as r from "ramda";
 
 const ALPHA = "abcdefghijklmnopqrstuvwxyz"
 
@@ -14,7 +14,7 @@ type Coordinate = [number, number]
 const getRow = (boardSize: number) => 
   r.map(() => ALPHA[Math.floor(Math.random() * boardSize + 1)], r.range(0, boardSize))
 
-const matrix: string[][] = r.map(() => getRow(5), r.range(0, 5))
+export const makeBoggleBoard = (boardSize: number): string[][] => r.map(() => getRow(5), r.range(0, 5))
 
 const my_board = [ 
     [ 'c', 'b', 'b', 'e', 'e' ],
@@ -36,7 +36,7 @@ export const getNeighborLetters = (row: number, col: number, board: string[][]):
   return r.unnest(getRange(row).map(
     (i: number) => {
       return getRange(col).map(
-        (j: number) => {
+        (j: number): Neighbor => {
           return {coords: [i, j], letter: board[i][j]}
         }
       )
@@ -57,7 +57,7 @@ export const findLetterCandidates = (letter: string, board: string[][]): Coordin
         )
     ))
 
-const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate, usedCoords: Coordinate[]): boolean => {
+export const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate, usedCoords: Coordinate[]): boolean => {
   // Base Case; made whole word
   if (idx === word.length) {
     return true
@@ -65,7 +65,7 @@ const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate, usedC
 
   // Base Case: could not find next letter
   const neighbors = r.filter(
-    (candidate) => candidate.letter === word[idx],
+    (candidate: Neighbor) => candidate.letter === word[idx] && !r.contains(candidate.coords, usedCoords),
     getNeighborLetters(prevCoord[0], prevCoord[1], my_board)
   )
 
@@ -74,18 +74,18 @@ const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate, usedC
   }
 
   // Recursive case: have neighbor candidates to check
-  return neighbors.map(
+  return r.any((x) => x, neighbors.map(
     (candidate) => findNeighbors(
       idx + 1, 
       word, 
       candidate.coords, 
       r.append(candidate.coords, usedCoords)
     )
-  )
+  ))
 }
 
 
-const startBoard = (word: string[]) => {
+export const startBoard = (word: string[]) => {
   const startingCandidates = findLetterCandidates(word[0], my_board)
   
   for (let i in startingCandidates) {
