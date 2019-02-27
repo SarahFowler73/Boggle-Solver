@@ -1,12 +1,14 @@
 import {Component} from "react";
 import { dom } from "./util";
-import { makeBoggleBoard } from "./boggle";
 
-class Board extends Component<{}, {}> {
+type Props = {
+    boardMatrix: string[][]
+}
+
+class Board extends Component<Props, {}> {
     render() {
-        const boardMatrix = makeBoggleBoard(4)
         return dom("table", {}, 
-            boardMatrix.map((row: string[]) => 
+            this.props.boardMatrix.map((row: string[]) => 
                 dom("tr", {}, 
                     row.map((letter: string) => 
                         dom("td", {}, letter)

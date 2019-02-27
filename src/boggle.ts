@@ -14,7 +14,7 @@ type Coordinate = [number, number]
 const getRow = (boardSize: number) => 
   r.map(() => ALPHA[Math.floor(Math.random() * boardSize + 1)], r.range(0, boardSize))
 
-export const makeBoggleBoard = (boardSize: number): string[][] => r.map(() => getRow(5), r.range(0, 5))
+export const makeBoggleBoard = (boardSize: number): string[][] => r.map(() => getRow(boardSize), r.range(0, boardSize))
 
 const my_board = [ 
     [ 'c', 'b', 'b', 'e', 'e' ],
