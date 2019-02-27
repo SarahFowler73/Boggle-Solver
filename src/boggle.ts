@@ -2,8 +2,6 @@ import * as r from "ramda";
 
 const ALPHA = "abcdefghijklmnopqrstuvwxyz"
 
-const BOARD_SIZE = 5
-
 type Neighbor = {
     coords: Coordinate,
     letter: string
@@ -18,16 +16,16 @@ const getRow = (boardSize: number) =>
 
 export const makeBoggleBoard = (boardSize: number): BoggleBoard => r.map(() => getRow(boardSize), r.range(0, boardSize))
 
-export const getRange = (val: number): number[] =>
+export const getRange = (val: number, boardSize: number): number[] =>
   r.range(
     val > 0 ? val - 1 : val,
-    val < BOARD_SIZE - 1 ? val + 2 : val + 1
+    val < boardSize - 1 ? val + 2 : val + 1
   )
 
 export const getNeighborLetters = (row: number, col: number, board: BoggleBoard): Neighbor[] => {
-  return r.unnest(getRange(row).map(
+  return r.unnest(getRange(row, board.length).map(
     (i: number) => {
-      return getRange(col).map(
+      return getRange(col, board.length).map(
         (j: number): Neighbor => {
           return {coords: [i, j], letter: board[i][j]}
         }

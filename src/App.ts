@@ -45,7 +45,7 @@ class App extends Component {
       ),
       dom("div", {style: {display: "flex", justifyContent: "center"}}, 
         dom("button", {
-          onClick: () => this.setState({boggleBoard: makeBoggleBoard(4)}), 
+          onClick: () => this.setState({boggleBoard: makeBoggleBoard(4), correctWords: []}), 
           style: {width: "200px", height: "25px", alignText: "center"}}, "Make New Boggle Board"
         )
       ),
