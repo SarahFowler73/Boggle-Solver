@@ -12,7 +12,7 @@ type BoggleBoard = string[][]
 type Coordinate = [number, number]
 
 const getRow = (boardSize: number) => 
-  r.map(() => ALPHA[Math.floor(Math.random() * boardSize + 1)], r.range(0, boardSize))
+  r.map(() => ALPHA[Math.floor(Math.random() * ALPHA.length)], r.range(0, boardSize))
 
 export const makeBoggleBoard = (boardSize: number): BoggleBoard => r.map(() => getRow(boardSize), r.range(0, boardSize))
 
