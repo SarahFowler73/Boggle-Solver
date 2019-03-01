@@ -8,7 +8,7 @@ export const getRange = (val: number, boardSize: number): number[] =>
     val < boardSize - 1 ? val + 2 : val + 1
   )
 
-export const getNeighborLetters = r.memoizeWith(r.identity, 
+export const getNeighborLetters = r.memoizeWith((row, col, board) => `${row}:${col}:${r.flatten(board).join(",")}`, 
   (row: number, col: number, board: BoggleBoard): Neighbor[] => 
     r.unnest(getRange(row, board.length).map(
       (i: number) => {
