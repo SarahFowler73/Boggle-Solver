@@ -1,8 +1,8 @@
 {
-  "name": "boggle",
+  "name": "boggle-solver",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://SarahFowler73.github.io/Boggle",
+  "homepage": "http://SarahFowler73.github.io/Boggle-Solver",
   "dependencies": {
     "node-fetch": "^2.3.0",
     "ramda": "^0.26.1",
