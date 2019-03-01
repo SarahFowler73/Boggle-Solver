@@ -1,71 +1,58 @@
 import { Component } from 'react';
 import Board from "./Board"
 import { dom } from './util';
-import { makeBoggleBoard, startBoard } from './boggle';
-import WordInput from './WordInput';
-import { fetchWord } from './fetch';
+import { solveBoard } from './boggle';
 import * as r from "ramda"
+import { Coordinate, BoggleBoard } from './types';
 
-class App extends Component {
-  state = {
-    boggleBoard: [],
-    correctWords: []
-  }
+type State = {
+  boggleBoard: BoggleBoard;
+  words: string[]
+}
 
-  checkGuess = (word: string): void => {
-    // Check if they've already submitted the word
-    if (r.contains(word, this.state.correctWords)) {
-      alert("Already guessed word")
-      return
-    }
-    // Find if it is in the matrix
-    const inBoard = startBoard(word.split(""), this.state.boggleBoard)
-    if (!inBoard) {
-      alert("Word not in board");
-      return
-    }
-    // Find if it is a real word
-    return fetchWord(word).then(
-      (resp:any) => {
-        if (resp.ok) {
-          this.setState({correctWords: r.append(word, this.state.correctWords)})
-        }
-        else {
-          alert("Word does not exist!")
-        }
-      }
-    )
+class App extends Component<{}, State> {
+  state: State = {
+    boggleBoard: r.range(0, 4).map((i: number) =>
+      r.range(0, 4).map((j: number) => "")),
+    words: []
   }
 
   render() {
     return dom(
       "div", {style: {margin: "5em", alignText: "center"}},
       dom('div', {style: {display: "flex", justifyContent: "center"}},
-        dom("h1", {}, "Let's Play Boggle!")
-      ),
-      dom("div", {style: {display: "flex", justifyContent: "center"}}, 
-        dom("button", {
-          onClick: () => this.setState({boggleBoard: makeBoggleBoard(4), correctWords: []}), 
-          style: {width: "200px", height: "25px", alignText: "center"}}, "Make New Boggle Board"
-        )
+        dom("h1", {}, "Let's Solve Boggle!")
       ),
       dom("div", {style: {display: "flex", justifyContent: "center", marginTop: "1em"}},
-        dom(Board, {boardMatrix: this.state.boggleBoard}),
+        dom(Board, {
+          boardMatrix: this.state.boggleBoard, 
+          setBoard: ([i, j]: Coordinate, letter: string) => 
+            this.setState({
+              boggleBoard: [
+                ...r.slice(0, i, this.state.boggleBoard),
+                r.update(j, letter, this.state.boggleBoard[i]),
+                ...r.slice(i+1, Infinity, this.state.boggleBoard)
+              ]
+            }) 
+        }),
       ),
       dom("div", {style: {display: "flex", justifyContent: "center", marginTop: "1em"}},
-        this.state.boggleBoard.length ? 
-          dom(WordInput, {
-            submitGuess: (word: string) => this.checkGuess(word)
-          })
-          : null
+        dom("button", {onClick: () => {
+          if (r.any((l: string) => l === "", r.flatten<string>(this.state.boggleBoard))) {
+              alert("board incomplete")
+          }
+          else {
+              this.setState({
+                words: solveBoard(this.state.boggleBoard)
+              })
+          }
+      }}, "Submit Board")
         ),
     dom("div", {style: {display: "flex", justifyContent: "center", marginTop: "1em"}},
-        this.state.boggleBoard.length ? 
-          dom("ul", {},
-            r.map((word: string) => dom("li", {key: word}, word), this.state.correctWords)
-           )
-          : null
+      dom("ul", {},
+        r.map((word: string) => dom("li", {key: word}, word), this.state.words)
         )
+      )
 
     )
   }

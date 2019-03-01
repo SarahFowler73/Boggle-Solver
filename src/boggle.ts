@@ -1,20 +1,6 @@
 import * as r from "ramda";
-
-const ALPHA = "abcdefghijklmnopqrstuvwxyz"
-
-type Neighbor = {
-    coords: Coordinate,
-    letter: string
-}
-
-type BoggleBoard = string[][]
-
-type Coordinate = [number, number]
-
-const getRow = (boardSize: number) => 
-  r.map(() => ALPHA[Math.floor(Math.random() * ALPHA.length)], r.range(0, boardSize))
-
-export const makeBoggleBoard = (boardSize: number): BoggleBoard => r.map(() => getRow(boardSize), r.range(0, boardSize))
+import { BoggleBoard, Neighbor, Coordinate } from "./types";
+import DICTIONARY from "./word_compiler/dictionary.json"
 
 export const getRange = (val: number, boardSize: number): number[] =>
   r.range(
@@ -22,17 +8,18 @@ export const getRange = (val: number, boardSize: number): number[] =>
     val < boardSize - 1 ? val + 2 : val + 1
   )
 
-export const getNeighborLetters = (row: number, col: number, board: BoggleBoard): Neighbor[] => {
-  return r.unnest(getRange(row, board.length).map(
-    (i: number) => {
-      return getRange(col, board.length).map(
-        (j: number): Neighbor => {
-          return {coords: [i, j], letter: board[i][j]}
-        }
-      )
-    }
-  ))
-}
+export const getNeighborLetters = r.memoizeWith(r.identity, 
+  (row: number, col: number, board: BoggleBoard): Neighbor[] => 
+    r.unnest(getRange(row, board.length).map(
+      (i: number) => {
+        return getRange(col, board.length).map(
+          (j: number): Neighbor => 
+            ({coords: [i, j], letter: board[i][j]})
+        )
+      }
+    )
+  )
+)
 
 export const findLetterCandidates = (letter: string, board: BoggleBoard): Coordinate[] => 
     r.unnest(r.range(0, board.length).map(
@@ -55,7 +42,7 @@ export const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate
 
   // Base Case: could not find next letter
   const neighbors = r.filter(
-    (candidate: Neighbor) => candidate.letter === word[idx] && !r.contains(candidate.coords, usedCoords),
+    (candidate: Neighbor) => candidate.letter === word[idx] && !r.includes(candidate.coords, usedCoords),
     getNeighborLetters(prevCoord[0], prevCoord[1], board)
   )
 
@@ -75,7 +62,6 @@ export const findNeighbors = (idx: number, word: string[], prevCoord: Coordinate
   ))
 }
 
-
 export const startBoard = (word: string[], board: BoggleBoard) => {
   const startingCandidates = findLetterCandidates(word[0], board)
   
@@ -85,4 +71,19 @@ export const startBoard = (word: string[], board: BoggleBoard) => {
     }
   }
   return false 
+}
+
+const filterDictForBoard = (flattenedBoard: string[]) => r.filter(
+  (w: string) => r.includes(w[0], flattenedBoard),
+  DICTIONARY
+)
+
+export const solveBoard = (board: BoggleBoard): string[] => {
+  const allPossibleWords = filterDictForBoard(r.flatten<string>(board))
+  console.log(allPossibleWords)
+
+  return r.reject(r.isNil, r.uniq(r.map(
+    (word: string) => startBoard(word.split(""), board) ? word : null, allPossibleWords
+    ))
+  ) as string[]
 }
