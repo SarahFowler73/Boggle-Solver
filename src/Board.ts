@@ -21,7 +21,7 @@ class Board extends Component<Props, {}> {
                                 value: letter, 
                                 onChange: (evt) => {
                                     const l = evt.target.value;
-                                    if (l.match(/([a-zA-Z]{1})/)) {
+                                    if (l.match(/([a-zA-Z]{0,1})/)) {
                                         this.props.setBoard([i, j], l.toUpperCase())
                                     }
                                 }

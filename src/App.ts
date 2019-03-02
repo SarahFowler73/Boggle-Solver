@@ -39,7 +39,7 @@ class App extends Component<{}, State> {
       dom("div", {style: {display: "flex", justifyContent: "center", marginTop: "1em"}},
         dom("button", {onClick: () => {
           if (r.any((l: string) => l === "", r.flatten<string>(this.state.boggleBoard))) {
-              alert("board incomplete")
+              alert("Board incomplete")
           }
           else {
               this.setState({
