@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "http://SarahFowler73.github.io/Boggle-Solver",
   "dependencies": {
-    "node-fetch": "^2.3.0",
+    "node-fetch": "^2.6.7",
     "ramda": "^0.26.1",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
